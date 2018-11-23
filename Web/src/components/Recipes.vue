@@ -5,10 +5,18 @@
         <v-data-table :headers="headers" :items="recipes" class="elevation-1">
           <template slot="items" slot-scope="props">
             <td class="text-xs-left">{{ props.item.name }}</td>
-            <td class="text-xs-center">{{ props.item.description }}</td>
+            <td class="text-xs-left">{{ props.item.description }}</td>
             <td class="text-xs-center">{{ props.item.batchSize }}</td>
             <td class="text-xs-center">{{ props.item.totalCost }}</td>
             <td class="text-xs-center">{{ props.item.totalCost / props.item.batchSize }}</td>
+            <td class="text-cs-center">
+              <v-btn fab small>
+                <v-icon large color="green darken-2">edit</v-icon>
+              </v-btn>
+              <v-btn fab small>
+                <v-icon large color="red darken-2">delete_forever</v-icon>
+              </v-btn>
+            </td>
           </template>
         </v-data-table>
       </v-flex>
@@ -24,9 +32,7 @@
 </template>
 
 <script>
-import Vue from 'vue'
 import axios from 'axios'
-import VueAxios from 'vue-axios'
 
 export default {
   data: () => ({
@@ -35,7 +41,8 @@ export default {
       { text: "Description", value: "description", align: "center", sortable: false },
       { text: "Batch Size", value: "batchSize", align: "center" },
       { text: "Total Cost", value: "totalCost", align: "center" },
-      { text: "Individual Cost", align: "center", sortable: false }
+      { text: "Individual Cost", align: "center", sortable: false },
+      { text: "Actions", align: "center", sortable: false }
     ],
     recipes: [
     ]

@@ -16,7 +16,11 @@
           ></v-text-field>
         </v-flex>
     </v-layout>
-    
+    <v-layout text-xs-left wrap>
+      <v-flex xs12>
+        <h4>* All measurements are per pound.</h4>
+      </v-flex>
+    </v-layout>
     <v-layout text-xs-center wrap>
       <v-flex xs12>
         <v-data-table :headers="headers" :items="conversions" class="elevation-1">
@@ -27,6 +31,14 @@
             <td class="text-xs-center">{{ props.item.tablespoonsPerPound }}</td>
             <td class="text-xs-center">{{ props.item.teaspoonsPerPound }}</td>
             <td class="text-xs-center">{{ props.item.fluidOuncesPerPound }}</td>
+            <td class="text-cs-center">
+              <v-btn fab small>
+                <v-icon large color="green darken-2">edit</v-icon>
+              </v-btn>
+              <v-btn fab small>
+                <v-icon large color="red darken-2">delete_forever</v-icon>
+              </v-btn>
+            </td>
           </template>
         </v-data-table>
       </v-flex>
@@ -35,19 +47,18 @@
 </template>
 
 <script>
-import Vue from 'vue'
 import axios from 'axios'
-import VueAxios from 'vue-axios'
 
 export default {
   data: () => ({
     headers: [
       { text: "Ingredient", value: "ingredientName", align: "left" },
-      { text: "Cups Per Pound", value: "cupsPerPound", align: "center" },
-      { text: "Ounces Per Pound", value: "ouncesPerPound", align: "center" },
-      { text: "Tablespoons Per Pound", value: "tablespoonsPerPound", align: "center" },
-      { text: "Teaspoons Per Pound", value: "teaspoonsPerPound", align: "center" },
-      { text: "Fluid Ounces Per Pound", value: "fluidOuncesPerPound", align: "center" },
+      { text: "Cups", value: "cupsPerPound", align: "center" },
+      { text: "Ounces", value: "ouncesPerPound", align: "center" },
+      { text: "Tablespoons", value: "tablespoonsPerPound", align: "center" },
+      { text: "Teaspoons", value: "teaspoonsPerPound", align: "center" },
+      { text: "Fluid Ounces", value: "fluidOuncesPerPound", align: "center" },
+      { text: "Actions", align: "center", sortable: false }
     ],
     conversions: [ ]
     }),
