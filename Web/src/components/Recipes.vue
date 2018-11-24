@@ -10,7 +10,7 @@
             <td class="text-xs-center">{{ props.item.totalCost }}</td>
             <td class="text-xs-center">{{ props.item.totalCost / props.item.batchSize }}</td>
             <td class="text-cs-center">
-              <v-btn fab small>
+              <v-btn fab small v-on:click="editRecipe(props.item.name)">
                 <v-icon large color="green darken-2">edit</v-icon>
               </v-btn>
               <v-btn fab small v-on:click="deleteRecipe(props.item.name)">
@@ -33,6 +33,7 @@
 
 <script>
 import axios from 'axios'
+import Router from 'vue-router'
 
 export default {
   data: () => ({
@@ -54,14 +55,14 @@ export default {
       });
     },
     deleteRecipe: function(name) {
-      alert("Deleting?");
-      axios.delete('https://devops-testing.azurewebsites.net/api/delete_recipe', {data: {name: name}}).then((response) => {
-        alert(response);
+      axios.delete('https://devops-testing.azurewebsites.net/api/delete_recipe', {data: {name: name}}).then(() => {
         this.recipes = this.recipes.filter(function(value){
-          alert("Deleted!");
           return value.name !== name;
         });
       })
+    },
+    editRecipe: function(name) {
+      this.$router.push({ path: `/configure-recipe/${name}`});
     }
   },
   created() {

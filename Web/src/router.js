@@ -21,7 +21,7 @@ export default new Router({
       component: Recipes
     },
     {
-      path: '/configure-recipe',
+      path: '/configure-recipe/:name?',
       name: 'Configure Recipe',
       component: ConfigureRecipe
     },

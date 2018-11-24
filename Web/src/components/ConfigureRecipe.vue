@@ -131,21 +131,23 @@ export default {
   }),
   methods: {
     setRecipe: function() {
-      alert("setRecipe");
       axios.put('https://devops-testing.azurewebsites.net/api/put_recipe',
       {
         name: this.name,
         description: this.description,
         batchSize: this.batchSize,
         totalCost: this.totalCost
-      }).then((response) => {
-        alert("Yuuuup!" + response.data);
       });
     },
     addIngredient: function() {
       alert("addIngredient");
     }
   },
+  created() {
+    this.name = this.$route.params.name;
+    alert(this.$route.params.name)
+  }
+
 };
 </script>
 <style>
