@@ -139,7 +139,7 @@ export default {
         batchSize: this.batchSize,
         totalCost: this.totalCost
       }).then((response) => {
-        alert("Yuuuup!");
+        alert("Yuuuup!" + response.data);
       });
     },
     addIngredient: function() {

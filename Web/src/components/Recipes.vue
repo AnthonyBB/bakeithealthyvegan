@@ -13,7 +13,7 @@
               <v-btn fab small>
                 <v-icon large color="green darken-2">edit</v-icon>
               </v-btn>
-              <v-btn fab small>
+              <v-btn fab small v-on:click="deleteRecipe(props.item.name)">
                 <v-icon large color="red darken-2">delete_forever</v-icon>
               </v-btn>
             </td>
@@ -52,6 +52,16 @@ export default {
       axios.get('https://devops-testing.azurewebsites.net/api/get_recipes').then((response) => {
         this.recipes = response.data;
       });
+    },
+    deleteRecipe: function(name) {
+      alert("Deleting?");
+      axios.delete('https://devops-testing.azurewebsites.net/api/delete_recipe', {data: {name: name}}).then((response) => {
+        alert(response);
+        this.recipes = this.recipes.filter(function(value){
+          alert("Deleted!");
+          return value.name !== name;
+        });
+      })
     }
   },
   created() {
