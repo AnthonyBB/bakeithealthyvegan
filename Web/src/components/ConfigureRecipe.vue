@@ -77,9 +77,6 @@
             <td class="text-xs-center">{{ props.item.units }}</td>
             <td class="text-cs-center">
               <v-btn fab small>
-                <v-icon large color="green darken-2">edit</v-icon>
-              </v-btn>
-              <v-btn fab small>
                 <v-icon large color="red darken-2">delete_forever</v-icon>
               </v-btn>
             </td>

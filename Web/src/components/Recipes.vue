@@ -23,8 +23,7 @@
     </v-layout>
     <v-layout>
       <v-flex xs12>
-        <v-btn color="increment">Increment</v-btn>
-        <v-btn color="decrement">Decrement</v-btn>
+        <v-btn v-on:click="addRecipe()">Add Recipe</v-btn>
       </v-flex>
     </v-layout>
 
@@ -33,7 +32,6 @@
 
 <script>
 import axios from 'axios'
-import Router from 'vue-router'
 
 export default {
   data: () => ({
@@ -63,6 +61,9 @@ export default {
     },
     editRecipe: function(name) {
       this.$router.push({ path: `/configure-recipe/${name}`});
+    },
+    addRecipe: function(name) {
+      this.$router.push({ path: `/configure-recipe`});
     }
   },
   created() {

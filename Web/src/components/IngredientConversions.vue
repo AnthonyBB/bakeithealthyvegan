@@ -16,6 +16,11 @@
           ></v-text-field>
         </v-flex>
     </v-layout>
+    <v-layout text-xs-center wrap>
+      <v-flex xs12>
+        <v-btn v-on:click="addConversion()">Add Conversion</v-btn>
+      </v-flex>
+    </v-layout>
     <v-layout text-xs-left wrap>
       <v-flex xs12>
         <h4>* All measurements are per pound.</h4>
@@ -32,9 +37,6 @@
             <td class="text-xs-center">{{ props.item.teaspoonsPerPound }}</td>
             <td class="text-xs-center">{{ props.item.fluidOuncesPerPound }}</td>
             <td class="text-cs-center">
-              <v-btn fab small>
-                <v-icon large color="green darken-2">edit</v-icon>
-              </v-btn>
               <v-btn fab small>
                 <v-icon large color="red darken-2">delete_forever</v-icon>
               </v-btn>
@@ -82,6 +84,9 @@ export default {
             this.conversions = conversionList;
           }
         });
+      },
+      addConversion: function() {
+        alert("addConversion");
       }
     },
     created() {
