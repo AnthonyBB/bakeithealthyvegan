@@ -10,4 +10,5 @@ public class Recipe
     public string description { get; set; }
     public int batchSize { get; set; }
     public double totalCost { get; set; }
+    public RecipeIngredient[] ingredients {get; set;}
 }

@@ -18,6 +18,14 @@
             <v-list-tile-title>Recipes</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
+        <v-list-tile :to="{path: '/ingredients'}">
+          <v-list-tile-action>
+            <v-icon>library_books</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            <v-list-tile-title>Ingredients</v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
         <v-list-tile :to="{path: '/standard-conversions'}">
           <v-list-tile-action>
             <v-icon>replay</v-icon>
@@ -28,7 +36,7 @@
         </v-list-tile>
         <v-list-tile :to="{path: '/ingredient-conversions'}">
           <v-list-tile-action>
-            <v-icon>replay_10</v-icon>
+            <v-icon>replay</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
             <v-list-tile-title>Ingredient Specific Conversions</v-list-tile-title>

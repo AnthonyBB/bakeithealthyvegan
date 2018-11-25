@@ -19,17 +19,18 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace DevOps.Testing
 {
-    public static class put_recipe
+    public static class get_recipe
     {
-        [FunctionName("put_recipe")]
+        [FunctionName("get_recipe")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = null)] HttpRequestMessage req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
             try
             {
+                string name = req.Query["name"];
                 string connectionString = @"mongodb://devops-testing:bcbcl7so5CpPaMjVHgGiq5vxdahkZxMHpmcYO9K3lVkSxZB6NciUgZ4ZoOxKnkCGZgWQjS3zYAqjYX4t3p21Yw==@devops-testing.documents.azure.com:10255/?ssl=true&replicaSet=globaldb";
                 MongoClientSettings settings = MongoClientSettings.FromUrl(
                   new MongoUrl(connectionString)
@@ -38,35 +39,15 @@ namespace DevOps.Testing
                   new SslSettings() { EnabledSslProtocols = SslProtocols.Tls12 };
                 var mongoClient = new MongoClient(settings);
                 var database = mongoClient.GetDatabase("devops-testing");
+                var recipesQuery = await database.GetCollection<Recipe>("recipes").FindAsync(x => x.name.ToLower() == name.ToLower());
+                var recipe = recipesQuery.SingleOrDefault();
 
-                //read json object from request body
-                var content = req.Content;
-                string jsonContent = await content.ReadAsStringAsync();
-                log.LogInformation(jsonContent);
-                Recipe model = JsonConvert.DeserializeObject<Recipe>(jsonContent);
-
-                var cursor = await database.GetCollection<Recipe>("recipes")
-                    .FindAsync(x => x.name.ToLower() == model.name.ToLower());
-
-                var recipe = cursor.SingleOrDefault();
-
-                if(recipe != null)
+                if(recipe == null)
                 {
-                    recipe.name = model.name;
-                    recipe.description = model.description;
-                    recipe.batchSize = model.batchSize;
-                    recipe.totalCost = model.totalCost;
-                    recipe.ingredients = model.ingredients;
-                    await database.GetCollection<Recipe>("recipes")
-                        .ReplaceOneAsync(x => x.name.ToLower() == model.name.ToLower(), recipe);
+                    return (ActionResult)new NotFoundResult();
                 }
-                else
-                {
-                    await database.GetCollection<Recipe>("recipes")
-                        .InsertOneAsync(model);
-                }
-                log.LogInformation(JsonConvert.SerializeObject(model));
-                return (ActionResult)new OkObjectResult(model);
+                
+                return (ActionResult)new OkObjectResult(recipe);
             }
             catch (Exception ex)
             {

@@ -3,15 +3,16 @@
     <v-form>
       <v-layout text-xs-center wrap>
           <v-flex xs12>
-            <v-text-field
-              v-model="name"
+            <v-text-field 
+              v-if="this.$route.params.name == null"
+              v-model="recipe.name"
               label="Name"
               placeholder="The name of your recipe."
             ></v-text-field>
           </v-flex>
           <v-flex xs12 sm6 md3>
             <v-text-field
-              v-model="description"
+              v-model="recipe.description"
               label="Description"
               placeholder="Describe your recipe."
             ></v-text-field>
@@ -19,7 +20,7 @@
           <v-spacer></v-spacer>
           <v-flex xs12 sm6 md3>
             <v-text-field
-              v-model="batchSize"
+              v-model="recipe.batchSize"
               label="Batch Size"
               placeholder="How many items does this recipe make?"
             ></v-text-field>
@@ -27,7 +28,7 @@
           <v-spacer></v-spacer>
           <v-flex xs12 sm6 md3>
             <v-text-field
-              v-model="totalCost"
+              v-model="recipe.totalCost"
               label="Total Cost"
               placeholder="What is the total cost of this batch?"
             ></v-text-field>
@@ -49,11 +50,11 @@
           </v-flex>
           <v-spacer></v-spacer>
           <v-flex xs12 sm6 md3>
-            <v-text-field
-              v-model="ingredientUnitOfMeasure"
-              label="Unit of Measure"
+            <v-select
+              :items="unitsOfMeasure"
+              label="Standard"
               placeholder="Cups, tablespoons, teaspons, etc"
-            ></v-text-field>
+            ></v-select>
           </v-flex>
           <v-spacer></v-spacer>
           <v-flex xs12 sm6 md3>
@@ -64,7 +65,7 @@
             ></v-text-field>
           </v-flex>
           <v-flex xs12>
-            <v-btn @click="addIngredient()">Add Ingredient</v-btn>
+            <v-btn @click="addIngredient(ingredientName, ingredientUnitOfMeasure, ingredientUnits)">Add Ingredient</v-btn>
           </v-flex>
       </v-layout>
     </v-form>
@@ -77,7 +78,7 @@
             <td class="text-xs-center">{{ props.item.units }}</td>
             <td class="text-cs-center">
               <v-btn fab small>
-                <v-icon large color="red darken-2">delete_forever</v-icon>
+                <v-icon large color="red darken-2" v-on:click="deleteIngredient(props.item.id)">delete_forever</v-icon>
               </v-btn>
             </td>
           </template>
@@ -90,61 +91,79 @@
 <script>
 import axios from 'axios'
 
+import UtilityService from '../services/utilityService'
+
 export default {
   data: () => ({
-    name: "name",
-    description: "description",
-    batchSize: 10,
-    totalCost: 5.95,
-    ingredientName: "Flour",
-    ingredientUnitOfMeasure: "Cup",
-    ingredientUnits: 5,
     headers: [
       { text: "Name", value: "name", align: "left" },
       { text: "Unit of Measure", value: "unitOfMeasure", align: "center" },
       { text: "Units", value: "units", align: "center" },
       { text: "Actions", align: "center", sortable: false }
     ],
-    ingredients: [
-      {
-        id: 1,
-        name: "Almond Flour",
-        unitOfMeasure: "Cup",
-        units: 2
-      },
-      {
-        id: 2,
-        name: "Sugar",
-        unitOfMeasure: "Tablespoon",
-        units: 4
-      },
-      {
-        id: 3,
-        name: "Vanilla",
-        unitOfMeasure: "Teaspoon",
-        units: 1
-      }
-    ]
+    recipe: {
+      name: null,
+      description: null,
+      batchSize: 0,
+      totalCost: 0.00
+     },
+    ingredients: [],
+    unitsOfMeasure: [],
+    ingredientName: "Flour",
+    ingredientUnitOfMeasure: "Cup",
+    ingredientUnits: "5"
   }),
   methods: {
     setRecipe: function() {
       axios.put('https://devops-testing.azurewebsites.net/api/put_recipe',
       {
-        name: this.name,
-        description: this.description,
-        batchSize: this.batchSize,
-        totalCost: this.totalCost
+        name: this.recipe.name,
+        description: this.recipe.description,
+        batchSize: this.recipe.batchSize,
+        totalCost: this.recipe.totalCost,
+        ingredients: this.ingredients
       });
     },
-    addIngredient: function() {
-      alert("addIngredient");
+    getRecipe: function(name) {
+      axios.get('https://devops-testing.azurewebsites.net/api/get_recipe?name=' + name).then((response) => {
+        this.recipe = response.data;
+        this.ingredients = this.recipe.ingredients;
+        if(this.ingredients == null)
+        {
+          this.ingredients = [];
+        }
+      })
+    },
+    addIngredient: function(name, unitOfMeasure, units) {
+      const ingredient = {
+        id: UtilityService.generateId(),
+        name: name,
+        unitOfMeasure: unitOfMeasure,
+        units: units
+      };
+      if(!this.ingredients)
+      {
+        this.ingredients = [];
+      }
+      this.ingredients.push(ingredient);
+      this.setRecipe();
+    },
+    deleteIngredient: function(id) {
+      this.ingredients = this.ingredients.filter(function(value){
+        return value.id !== id;
+      });
+      this.setRecipe();
+    },
+    getAllConversions: function() {
+      axios.get('https://devops-testing.azurewebsites.net/api/get_conversions').then((response) => {
+        this.unitsOfMeasure = response.data.map(x => x.name);
+      });
     }
   },
   created() {
-    this.name = this.$route.params.name;
-    alert(this.$route.params.name)
+    this.getRecipe(this.$route.params.name);
+    this.getAllConversions();
   }
-
 };
 </script>
 <style>

@@ -1,7 +1,11 @@
 <template>
   <v-container>
     <v-layout text-xs-center wrap>
-      <v-flex xs12>
+      <v-flex xs12 v-if="isLoadingRecipes">
+        <v-progress-circular :size="50" color="primary" indeterminate>
+        </v-progress-circular>
+      </v-flex>
+      <v-flex xs12 v-if="!isLoadingRecipes">
         <v-data-table :headers="headers" :items="recipes" class="elevation-1">
           <template slot="items" slot-scope="props">
             <td class="text-xs-left">{{ props.item.name }}</td>
@@ -44,13 +48,19 @@ export default {
       { text: "Actions", align: "center", sortable: false }
     ],
     recipes: [
-    ]
+    ],
+    isLoadingRecipes: false
   }),
   methods: {
     getAllRecipes: function() {
+      this.isLoadingRecipes = true;
       axios.get('https://devops-testing.azurewebsites.net/api/get_recipes').then((response) => {
         this.recipes = response.data;
-      });
+        this.isLoadingRecipes = false;
+      })
+    .catch(function () {
+        this.isLoadingRecipes = false;
+    });
     },
     deleteRecipe: function(name) {
       axios.delete('https://devops-testing.azurewebsites.net/api/delete_recipe', {data: {name: name}}).then(() => {
@@ -62,7 +72,7 @@ export default {
     editRecipe: function(name) {
       this.$router.push({ path: `/configure-recipe/${name}`});
     },
-    addRecipe: function(name) {
+    addRecipe: function() {
       this.$router.push({ path: `/configure-recipe`});
     }
   },

@@ -5,6 +5,7 @@ import Recipes from "./components/Recipes";
 import ConfigureRecipe from "./components/ConfigureRecipe";
 import StandardConversions from "./components/StandardConversions";
 import IngredientConversions from "./components/IngredientConversions";
+import Ingredients from "./components/Ingredients";
 
 Vue.use(Router)
 
@@ -34,6 +35,11 @@ export default new Router({
       path: '/ingredient-conversions',
       name: 'Ingredient Conversions',
       component: IngredientConversions
+    },
+    {
+      path: '/ingredients',
+      name: 'Ingredients',
+      component: Ingredients
     }
   ]
 })
