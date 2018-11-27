@@ -3,8 +3,8 @@ import Router from 'vue-router'
 import Home from "./components/Home";
 import Recipes from "./components/Recipes";
 import ConfigureRecipe from "./components/ConfigureRecipe";
+import ConfigureIngredient from "./components/ConfigureIngredient";
 import StandardConversions from "./components/StandardConversions";
-import IngredientConversions from "./components/IngredientConversions";
 import Ingredients from "./components/Ingredients";
 
 Vue.use(Router)
@@ -32,14 +32,14 @@ export default new Router({
       component: StandardConversions
     },
     {
-      path: '/ingredient-conversions',
-      name: 'Ingredient Conversions',
-      component: IngredientConversions
-    },
-    {
       path: '/ingredients',
       name: 'Ingredients',
       component: Ingredients
-    }
+    },
+    {
+      path: '/configure-ingredient/:name?',
+      name: 'Configure Ingredient',
+      component: ConfigureIngredient
+    },
   ]
 })

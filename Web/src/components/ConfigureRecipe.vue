@@ -1,58 +1,62 @@
 <template>
   <v-container>
     <v-form>
-      <v-layout text-xs-center wrap>
-          <v-flex xs12>
-            <v-text-field 
-              v-if="this.$route.params.name == null"
-              v-model="recipe.name"
-              label="Name"
-              placeholder="The name of your recipe."
-            ></v-text-field>
-          </v-flex>
-          <v-flex xs12 sm6 md3>
-            <v-text-field
-              v-model="recipe.description"
-              label="Description"
-              placeholder="Describe your recipe."
-            ></v-text-field>
-          </v-flex>
-          <v-spacer></v-spacer>
-          <v-flex xs12 sm6 md3>
-            <v-text-field
-              v-model="recipe.batchSize"
-              label="Batch Size"
-              placeholder="How many items does this recipe make?"
-            ></v-text-field>
-          </v-flex>
-          <v-spacer></v-spacer>
-          <v-flex xs12 sm6 md3>
-            <v-text-field
-              v-model="recipe.totalCost"
-              label="Total Cost"
-              placeholder="What is the total cost of this batch?"
-            ></v-text-field>
-          </v-flex>
-          <v-flex xs12>
-            <v-btn @click="setRecipe()">Save Recipe</v-btn>
-          </v-flex>
+      <v-layout text-xs-center wrap>        
+        <v-flex xs12>
+          <v-text-field
+            label="Name"
+            placeholder="The name of the recipe?"
+            v-model="recipe.name"
+             v-if="!isEditMode"
+          ></v-text-field>
+          <h2 v-if="isEditMode">{{ recipe.name }}</h2>
+        <v-divider></v-divider>
+        </v-flex>
+        <v-flex xs12>
+          <v-text-field 
+            v-if="this.$route.params.name == null"
+            v-model="recipe.name"
+            label="Name"
+            placeholder="The name of your recipe."
+          ></v-text-field>
+        </v-flex>
+        <v-flex xs12 sm5>
+          <v-text-field
+            v-model="recipe.description"
+            label="Description"
+            placeholder="Describe your recipe."
+          ></v-text-field>
+        </v-flex>
+        <v-spacer></v-spacer>
+        <v-flex xs12 sm5>
+          <v-text-field
+            v-model="recipe.batchSize"
+            label="Batch Size"
+            placeholder="How many items does this recipe make?"
+          ></v-text-field>
+        </v-flex>
+        <v-flex xs12>
+          <v-btn @click="setRecipe()">Save Recipe</v-btn>
+        </v-flex>
       </v-layout>
     </v-form>
     <v-divider></v-divider>
     <v-form>
       <v-layout text-xs-center wrap>
           <v-flex xs12 sm6 md3>
-            <v-text-field
+            <v-select
+              :items="ingredientNames"
               v-model="ingredientName"
-              label="Ingredient"
-              placeholder="Select an ingredient"
-            ></v-text-field>
+              label="Ingredient Name"
+              placeholder="Flour, Sugar, etc."
+            ></v-select>
           </v-flex>
           <v-spacer></v-spacer>
           <v-flex xs12 sm6 md3>
             <v-select
               :items="unitsOfMeasure"
-              label="Standard"
+              v-model="ingredientUnitOfMeasure"
+              label="Unit of Measure"
               placeholder="Cups, tablespoons, teaspons, etc"
             ></v-select>
           </v-flex>
@@ -85,6 +89,25 @@
         </v-data-table>
       </v-flex>
     </v-layout>
+    <v-snackbar
+      v-model="snackbar.open"
+      :bottom="snackbar.y === 'bottom'"
+      :left="snackbar.x === 'left'"
+      :multi-line="snackbar.mode === 'multi-line'"
+      :right="snackbar.x === 'right'"
+      :timeout="snackbar.timeout"
+      :top="snackbar.y === 'top'"
+      :vertical="snackbar.mode === 'vertical'"
+    >
+      {{ snackbar.text }}
+      <v-btn
+        color="pink"
+        flat
+        @click="snackbar.open = false"
+      >
+        Close
+      </v-btn>
+    </v-snackbar>
   </v-container>
 </template>
 
@@ -109,9 +132,19 @@ export default {
      },
     ingredients: [],
     unitsOfMeasure: [],
-    ingredientName: "Flour",
-    ingredientUnitOfMeasure: "Cup",
-    ingredientUnits: "5"
+    ingredientNames: [],
+    ingredientName: null,
+    ingredientUnitOfMeasure: null,
+    ingredientUnits: null,
+    snackbar: {
+      open: false,
+      y: 'top',
+      x: null,
+      mode: '',
+      timeout: 5000,
+      text: ''
+    },
+    isEditMode: false
   }),
   methods: {
     setRecipe: function() {
@@ -122,6 +155,10 @@ export default {
         batchSize: this.recipe.batchSize,
         totalCost: this.recipe.totalCost,
         ingredients: this.ingredients
+      }).then(() => {
+        this.snackbar.text = "Recipe Saved.";
+        this.snackbar.open = true;
+        this.isEditMode = true;
       });
     },
     getRecipe: function(name) {
@@ -154,15 +191,25 @@ export default {
       });
       this.setRecipe();
     },
-    getAllConversions: function() {
+    getAllConversionNames: function() {
       axios.get('https://devops-testing.azurewebsites.net/api/get_conversions').then((response) => {
         this.unitsOfMeasure = response.data.map(x => x.name);
+      });
+    },  
+    getAllIngredientNames: function() {
+      axios.get('https://devops-testing.azurewebsites.net/api/get_ingredients').then((response) => {
+        this.ingredientNames = response.data.map(x => x.name);
       });
     }
   },
   created() {
+    this.getAllConversionNames();
+    this.getAllIngredientNames();
+    this.isEditMode = this.$route.params.name != null;
+    if(this.isEditMode)
+    {
     this.getRecipe(this.$route.params.name);
-    this.getAllConversions();
+    }
   }
 };
 </script>
