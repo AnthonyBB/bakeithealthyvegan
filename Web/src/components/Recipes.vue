@@ -11,8 +11,8 @@
             <td class="text-xs-left">{{ props.item.name }}</td>
             <td class="text-xs-left">{{ props.item.description }}</td>
             <td class="text-xs-center">{{ props.item.batchSize }}</td>
-            <td class="text-xs-center">{{ props.item.totalCost }}</td>
-            <td class="text-xs-center">{{ props.item.totalCost / props.item.batchSize }}</td>
+            <td class="text-xs-center">{{ getTotalCost(props.item.ingredients) }}</td>
+            <td class="text-xs-center">{{ getTotalCost(props.item.ingredients) / props.item.batchSize }}</td>
             <td class="text-cs-center">
               <v-btn fab small v-on:click="editRecipe(props.item.name)">
                 <v-icon large color="green darken-2">edit</v-icon>
@@ -30,7 +30,6 @@
         <v-btn v-on:click="addRecipe()">Add Recipe</v-btn>
       </v-flex>
     </v-layout>
-
   </v-container>
 </template>
 
@@ -49,7 +48,8 @@ export default {
     ],
     recipes: [
     ],
-    isLoadingRecipes: false
+    isLoadingRecipes: false,
+    ingredients: []
   }),
   methods: {
     getAllRecipes: function() {
@@ -74,9 +74,41 @@ export default {
     },
     addRecipe: function() {
       this.$router.push({ path: `/configure-recipe`});
+    },
+    getTotalCost: function(recipeIngredients) {
+      let totalCost = 0.0;
+
+      var that = this;
+      let matchingIngredients = [];
+      if(recipeIngredients)
+      {
+        recipeIngredients.forEach(function(recipeIngredient) {
+          if(that.ingredients) {
+            let filtered = that.ingredients.forEach(function(ingredient) {
+              if(recipeIngredient.name.toLowerCase() === ingredient.name.toLowerCase())
+              {
+                var match = { "unitCost": ingredient.unitCost, "units": recipeIngredient.units }
+                matchingIngredients.push(match);
+              }
+            });
+          }
+        });
+      }
+
+      var recipeCost = 0;
+      matchingIngredients.forEach(function(match) {
+        recipeCost += match.unitCost * eval(match.units);
+      });
+      return recipeCost;
+    },
+    getAllIngredients: function() {
+      axios.get('https://devops-testing.azurewebsites.net/api/get_ingredients').then((response) => {
+        this.ingredients = response.data;
+      });
     }
   },
   created() {
+    this.getAllIngredients();
     this.getAllRecipes();
   }
 };

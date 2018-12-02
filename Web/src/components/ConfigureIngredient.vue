@@ -12,7 +12,7 @@
           <h2 v-if="isEditMode">{{ ingredient.name }}</h2>
         <v-divider></v-divider>
         </v-flex>
-        <v-flex xs3>
+        <v-flex xs5>
             <v-select
               :items="unitsOfMeasure"
               label="Unit of Measure"
@@ -20,20 +20,34 @@
               v-model="ingredient.unitOfMeasure">
             </v-select>
         </v-flex>
-        <v-spacer></v-spacer>
-        <v-flex xs3>
+        <v-flex xs2>
+        </v-flex>
+        <v-flex xs5>
           <v-text-field
             label="Units Per Pound"
             placeholder="How many units per pound?"
             v-model="ingredient.unitsPerPound"
           ></v-text-field>
         </v-flex>
-        <v-spacer></v-spacer>
-        <v-flex xs3>
+        <v-flex xs12>
+        </v-flex>
+        <v-flex xs12>
+          <h2 style="width: 100%; text-align: center;">or</h2>
+        </v-flex>
+        <v-flex xs5>
           <v-text-field
             label="Cost Per Unit"
             placeholder="Cost per unit?"
             v-model="ingredient.unitCost"
+          ></v-text-field>
+        </v-flex>
+        <v-flex xs2>
+        </v-flex>
+        <v-flex xs5>
+          <v-text-field
+            label="Cost Per Pound"
+            placeholder="Cost per pound?"
+            v-model="ingredient.costPerPound"
           ></v-text-field>
         </v-flex>
         <v-flex xs12>
@@ -74,7 +88,8 @@ export default {
       name: null,
       unitOfMeasure: null,
       unitsPerPound: 0,
-      unitCost: 0.00
+      unitCost: 0.00,
+      costPerPound: 0.00
      },
     unitsOfMeasure: [],
     snackbar: {
@@ -94,7 +109,8 @@ export default {
         name: this.ingredient.name,
         unitsPerPound: this.ingredient.unitsPerPound,
         unitOfMeasure: this.ingredient.unitOfMeasure,
-        unitCost: this.ingredient.unitCost
+        unitCost: this.ingredient.unitCost,
+        costPerPound: this.ingredient.costPerPound
       }).then(() => {
         this.snackbar.text = "Ingredient Saved.";
         this.snackbar.open = true;

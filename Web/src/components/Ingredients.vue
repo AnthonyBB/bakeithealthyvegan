@@ -52,7 +52,7 @@ export default {
     unitCost: 0.00,
     unitsOfMeasure: []
     }),
-    methods: {    
+    methods: {
       getAllIngredients: function() {
         this.isLoadingIngredients = true;
         axios.get('https://devops-testing.azurewebsites.net/api/get_ingredients').then((response) => {

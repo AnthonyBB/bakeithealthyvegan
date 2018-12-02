@@ -31,3 +31,4 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 ### TODO
 Add logging
 Use ids instead of names for modifying resources
+Determine how to deal with ingredients that have been deleted that belong to recipess.
