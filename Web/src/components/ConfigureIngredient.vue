@@ -39,6 +39,8 @@
             label="Cost Per Unit"
             placeholder="Cost per unit?"
             v-model="ingredient.unitCost"
+            @click="isPerPound = false"
+            :outline="!isPerPound"
           ></v-text-field>
         </v-flex>
         <v-flex xs2>
@@ -48,6 +50,8 @@
             label="Cost Per Pound"
             placeholder="Cost per pound?"
             v-model="ingredient.costPerPound"
+            @click="isPerPound = true"
+            :outline="isPerPound"
           ></v-text-field>
         </v-flex>
         <v-flex xs12>
@@ -100,7 +104,8 @@ export default {
       timeout: 5000,
       text: ''
     },
-    isEditMode: false
+    isEditMode: false,
+    isPerPound: false
   }),
   methods: {
     setIngredient: function() {
@@ -109,8 +114,8 @@ export default {
         name: this.ingredient.name,
         unitsPerPound: this.ingredient.unitsPerPound,
         unitOfMeasure: this.ingredient.unitOfMeasure,
-        unitCost: this.ingredient.unitCost,
-        costPerPound: this.ingredient.costPerPound
+        unitCost: this.IsPerPound ? null : this.ingredient.unitCost,
+        costPerPound: this.IsPerPound ? this.ingredient.costPerPound : null
       }).then(() => {
         this.snackbar.text = "Ingredient Saved.";
         this.snackbar.open = true;

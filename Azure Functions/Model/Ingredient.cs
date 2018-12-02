@@ -9,6 +9,6 @@ public class Ingredient
     public string name { get; set; }
     public decimal unitsPerPound { get; set; }
     public string unitOfMeasure { get; set; }
-    public decimal unitCost { get; set; }
-    public decimal costPerPound { get; set; }
+    public decimal? unitCost { get; set; }
+    public decimal? costPerPound { get; set; }
 }
