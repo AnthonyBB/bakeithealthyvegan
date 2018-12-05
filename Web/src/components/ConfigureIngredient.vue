@@ -30,9 +30,7 @@
           ></v-text-field>
         </v-flex>
         <v-flex xs12>
-        </v-flex>
-        <v-flex xs12>
-          <h2 style="width: 100%; text-align: center;">or</h2>
+        <v-divider></v-divider>
         </v-flex>
         <v-flex xs5>
           <v-text-field
@@ -44,6 +42,7 @@
           ></v-text-field>
         </v-flex>
         <v-flex xs2>
+          <h2 style="width: 100%; text-align: center;">Or</h2>
         </v-flex>
         <v-flex xs5>
           <v-text-field
@@ -114,7 +113,7 @@ export default {
         name: this.ingredient.name,
         unitsPerPound: this.ingredient.unitsPerPound,
         unitOfMeasure: this.ingredient.unitOfMeasure,
-        unitCost: this.isPerPound ? null : this.ingredient.unitCost,
+        unitCost: this.isPerPound ? this.ingredient.costPerPound / this.ingredient.unitsPerPound : this.ingredient.unitCost,
         costPerPound: this.isPerPound ? this.ingredient.costPerPound : null
       }).then(() => {
         this.snackbar.text = "Ingredient Saved.";

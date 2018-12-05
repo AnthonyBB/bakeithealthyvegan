@@ -119,6 +119,10 @@ import axios from 'axios'
 import UtilityService from '../services/utilityService'
 
 export default {
+  $_veeValidate: {
+    validator: 'new'
+  },
+
   data: () => ({
     headers: [
       { text: "Name", value: "name", align: "left" },
