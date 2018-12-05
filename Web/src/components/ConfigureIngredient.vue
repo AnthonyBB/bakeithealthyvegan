@@ -114,8 +114,8 @@ export default {
         name: this.ingredient.name,
         unitsPerPound: this.ingredient.unitsPerPound,
         unitOfMeasure: this.ingredient.unitOfMeasure,
-        unitCost: this.IsPerPound ? null : this.ingredient.unitCost,
-        costPerPound: this.IsPerPound ? this.ingredient.costPerPound : null
+        unitCost: this.isPerPound ? null : this.ingredient.unitCost,
+        costPerPound: this.isPerPound ? this.ingredient.costPerPound : null
       }).then(() => {
         this.snackbar.text = "Ingredient Saved.";
         this.snackbar.open = true;
@@ -125,6 +125,7 @@ export default {
     getIngredient: function(name) {
       axios.get('https://devops-testing.azurewebsites.net/api/get_ingredient?name=' + name).then((response) => {
         this.ingredient = response.data;
+        this.isPerPound = response.data.costPerPound != null;
       })
     },
     getAllConversionNames: function() {

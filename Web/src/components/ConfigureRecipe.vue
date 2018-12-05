@@ -58,6 +58,8 @@
               v-model="ingredientUnitOfMeasure"
               label="Unit of Measure"
               placeholder="Cups, tablespoons, teaspons, etc"
+              item-text="name"
+              item-value="name"
             ></v-select>
           </v-flex>
           <v-spacer></v-spacer>
@@ -162,14 +164,18 @@ export default {
       });
     },
     getRecipe: function(name) {
-      axios.get('https://devops-testing.azurewebsites.net/api/get_recipe?name=' + name).then((response) => {
+      var promise = axios.get('https://devops-testing.azurewebsites.net/api/get_recipe?name=' + name);
+      promise.then((response) => {
         this.recipe = response.data;
         this.ingredients = this.recipe.ingredients;
         if(this.ingredients == null)
         {
           this.ingredients = [];
         }
-      })
+        
+        this.getAllConversionNames();
+      });
+      return promise;
     },
     addIngredient: function(name, unitOfMeasure, units) {
       const ingredient = {
@@ -192,19 +198,22 @@ export default {
       this.setRecipe();
     },
     getAllConversionNames: function() {
-      axios.get('https://devops-testing.azurewebsites.net/api/get_conversions').then((response) => {
-        this.unitsOfMeasure = response.data.map(x => x.name);
+      var promise = axios.get('https://devops-testing.azurewebsites.net/api/get_conversions');
+      promise.then((response) => {
+        this.unitsOfMeasure = response.data;
+        this.getAllIngredientNames();
       });
+      return promise;
     },  
     getAllIngredientNames: function() {
-      axios.get('https://devops-testing.azurewebsites.net/api/get_ingredients').then((response) => {
+      var promise = axios.get('https://devops-testing.azurewebsites.net/api/get_ingredients');
+      promise.then((response) => {
         this.ingredientNames = response.data.map(x => x.name);
       });
+      return promise;
     }
   },
   created() {
-    this.getAllConversionNames();
-    this.getAllIngredientNames();
     this.isEditMode = this.$route.params.name != null;
     if(this.isEditMode)
     {

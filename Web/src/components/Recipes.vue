@@ -2,8 +2,7 @@
   <v-container>
     <v-layout text-xs-center wrap>
       <v-flex xs12 v-if="isLoadingRecipes">
-        <v-progress-circular :size="50" color="primary" indeterminate>
-        </v-progress-circular>
+        <v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
       </v-flex>
       <v-flex xs12 v-if="!isLoadingRecipes">
         <v-data-table :headers="headers" :items="recipes" class="elevation-1">
@@ -11,8 +10,10 @@
             <td class="text-xs-left">{{ props.item.name }}</td>
             <td class="text-xs-left">{{ props.item.description }}</td>
             <td class="text-xs-center">{{ props.item.batchSize }}</td>
-            <td class="text-xs-center">{{ getTotalCost(props.item.ingredients) }}</td>
-            <td class="text-xs-center">{{ getTotalCost(props.item.ingredients) / props.item.batchSize }}</td>
+            <td class="text-xs-center">{{ props.item.totalCost }}</td>
+            <td
+              class="text-xs-center"
+            >{{ props.item.totalCost / props.item.batchSize }}</td>
             <td class="text-cs-center">
               <v-btn fab small v-on:click="editRecipe(props.item.name)">
                 <v-icon large color="green darken-2">edit</v-icon>
@@ -34,81 +35,122 @@
 </template>
 
 <script>
-import axios from 'axios'
+import axios from "axios";
 
 export default {
   data: () => ({
     headers: [
       { text: "Name", value: "name", align: "left" },
-      { text: "Description", value: "description", align: "center", sortable: false },
+      {
+        text: "Description",
+        value: "description",
+        align: "center",
+        sortable: false
+      },
       { text: "Batch Size", value: "batchSize", align: "center" },
       { text: "Total Cost", value: "totalCost", align: "center" },
       { text: "Individual Cost", align: "center", sortable: false },
       { text: "Actions", align: "center", sortable: false }
     ],
-    recipes: [
-    ],
+    recipes: [],
     isLoadingRecipes: false,
     ingredients: []
   }),
   methods: {
     getAllRecipes: function() {
+      var that = this;
       this.isLoadingRecipes = true;
-      axios.get('https://devops-testing.azurewebsites.net/api/get_recipes').then((response) => {
-        this.recipes = response.data;
-        this.isLoadingRecipes = false;
-      })
-    .catch(function () {
-        this.isLoadingRecipes = false;
-    });
+      axios
+        .get("https://devops-testing.azurewebsites.net/api/get_recipes")
+        .then(response => {
+          that.recipes = response.data;
+          that.getAllIngredients();
+          that.isLoadingRecipes = false;
+        })
+        .catch(function() {
+          that.isLoadingRecipes = false;
+        });
     },
     deleteRecipe: function(name) {
-      axios.delete('https://devops-testing.azurewebsites.net/api/delete_recipe', {data: {name: name}}).then(() => {
-        this.recipes = this.recipes.filter(function(value){
-          return value.name !== name;
+      axios
+        .delete("https://devops-testing.azurewebsites.net/api/delete_recipe", {
+          data: { name: name }
+        })
+        .then(() => {
+          this.recipes = this.recipes.filter(function(value) {
+            return value.name !== name;
+          });
         });
-      })
     },
     editRecipe: function(name) {
-      this.$router.push({ path: `/configure-recipe/${name}`});
+      this.$router.push({ path: `/configure-recipe/${name}` });
     },
     addRecipe: function() {
-      this.$router.push({ path: `/configure-recipe`});
+      this.$router.push({ path: `/configure-recipe` });
     },
     getTotalCost: function(recipeIngredients) {
-      let totalCost = 0.0;
-
+      //let totalCost = 0.0;
       var that = this;
       let matchingIngredients = [];
-      if(recipeIngredients)
-      {
-        recipeIngredients.forEach(function(recipeIngredient) {
-          if(that.ingredients) {
-            let filtered = that.ingredients.forEach(function(ingredient) {
-              if(recipeIngredient.name.toLowerCase() === ingredient.name.toLowerCase())
-              {
-                var match = { "unitCost": ingredient.unitCost, "units": recipeIngredient.units }
+      if (recipeIngredients) {
+        for(let recipeIngredient of recipeIngredients) {
+          if (that.ingredients) {
+            for(let ingredient of that.ingredients) {
+              if (
+                recipeIngredient.name.toLowerCase() ===
+                ingredient.name.toLowerCase()
+              ) {
+                let match = {
+                  unitCost: ingredient.unitCost,
+                  units: recipeIngredient.units,
+                  convertedUnits: that.convertToRecipeIngredientUnitOfMeasure(ingredient.unitOfMeasure, recipeIngredient.unitOfMeasure, that.conversions, recipeIngredient.units)
+                };
                 matchingIngredients.push(match);
+                break;
               }
-            });
+            };
           }
-        });
+        };
       }
-
       var recipeCost = 0;
       matchingIngredients.forEach(function(match) {
-        recipeCost += match.unitCost * eval(match.units);
+        recipeCost += match.unitCost * match.convertedUnits;
       });
       return recipeCost;
     },
     getAllIngredients: function() {
-      axios.get('https://devops-testing.azurewebsites.net/api/get_ingredients').then((response) => {
-        this.ingredients = response.data;
+      var that = this;
+      axios
+        .get("https://devops-testing.azurewebsites.net/api/get_ingredients")
+        .then(response => {
+          this.ingredients = response.data;
+          that.getAllConversions();
+        });
+    },
+    getAllConversions: function() {
+      var that = this;
+      axios.get('https://devops-testing.azurewebsites.net/api/get_conversions').then((response) => {
+        this.conversions = response.data;
+        for(let recipe of that.recipes) {
+            recipe.totalCost = that.getTotalCost(recipe.ingredients);
+        }
       });
+    },
+    convertToRecipeIngredientUnitOfMeasure: function(ingredientUnitOfMeasure, recipeIngredientUnitOfMeasure, standardConversions, amount)
+    {
+      for(let standardConversion of standardConversions) {
+          if(recipeIngredientUnitOfMeasure.toLowerCase() == standardConversion.name.toLowerCase())
+          {
+            let ratio = standardConversion[`${ingredientUnitOfMeasure}`];
+            let conversion = eval(ratio) * amount;
+            return conversion;
+            break;
+          }
+        }
+          return null;
     }
   },
   created() {
-    this.getAllIngredients();
     this.getAllRecipes();
   }
 };

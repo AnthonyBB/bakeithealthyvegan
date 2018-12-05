@@ -7,8 +7,3 @@
     </v-layout>
   </v-container>
 </template>
-
-<script>
-</script>
-<style>
-</style>
