@@ -16,7 +16,7 @@
             <v-btn fab small v-on:click="editIngredient(props.item.name)">
               <v-icon large color="green darken-2">edit</v-icon>
             </v-btn>
-              <v-btn fab small v-on:click="deleteIngredient(props.item.name)">
+              <v-btn fab small v-on:click="deleteIngredientConfirm(props.item.name)">
                 <v-icon large color="red darken-2">delete_forever</v-icon>
               </v-btn>
             </td>
@@ -27,6 +27,50 @@
     <v-layout>
       <v-flex xs12>
         <v-btn v-on:click="addIngredient()">Add Ingredient</v-btn>
+      </v-flex>
+    </v-layout>
+    <v-layout>
+      <v-flex xs12>
+        <div class="text-xs-center">
+          <v-dialog
+            v-model="dialog"
+            width="500"
+          >
+
+            <v-card>
+              <v-card-title
+                class="headline grey lighten-2"
+                primary-title
+              >
+                Confirm Ingredient Deletion
+              </v-card-title>
+
+              <v-card-text>
+                Are you sure you want to delete ingredient {{ deleteIngredientName }}?
+              </v-card-text>
+
+              <v-divider></v-divider>
+
+              <v-card-actions>
+                <v-btn
+                  color="secondary"
+                  flat
+                  @click="dialog = false"
+                >
+                  Cancel
+                </v-btn>
+                <v-spacer></v-spacer>
+                <v-btn
+                  color="primary"
+                  flat
+                  @click="deleteIngredient()"
+                >
+                  Confirm Deletion
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </div>
       </v-flex>
     </v-layout>
   </v-container>
@@ -50,7 +94,9 @@ export default {
     unitOfMeasure: "Cup",
     unitsPerPound: 0.00,
     unitCost: 0.00,
-    unitsOfMeasure: []
+    unitsOfMeasure: [],
+    dialog: false,
+    deleteIngredientName: null
     }),
     methods: {
       getAllIngredients: function() {
@@ -66,7 +112,14 @@ export default {
       addIngredient: function() {
         this.$router.push({ path: `/configure-ingredient/`});
       },
-      deleteIngredient: function(name) {
+      deleteIngredientConfirm: function(name) {
+        this.deleteIngredientName = name;
+        this.dialog = true;
+      },
+      deleteIngredient: function() {
+        const name = this.deleteIngredientName;
+        this.deleteIngredientName = null;
+        this.dialog = false;
         axios.delete('https://devops-testing.azurewebsites.net/api/delete_ingredient', {data: {name: name}}).then(() => {
           this.ingredients = this.ingredients.filter(function(value){
             return value.name !== name;

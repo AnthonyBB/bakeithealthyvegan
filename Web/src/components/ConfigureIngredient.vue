@@ -113,20 +113,12 @@ export default {
     unitOfMeasureRules: [
       v => !!v || 'Unit of Measure is required',
     ],
-    // costPerRequired: [
-    //   v => {
-    //     const unitCostField = this.$validator.fields.find({ name: 'unitCost' });
-    //     const costPerPoundField = this.$validator.fields.find({ name: 'costPerPound' });
-    //     !!unitCostField.val() && !!costPerPoundField.val() || 'You must provide either Cost Per Unit or Cost Per Pound'
-    //   },
-    // ],
     unitsOfMeasureRules: [
       v => !!v || 'Unit of Measure is required',
-    ],
+    ]
   }),
   methods: {
     setIngredient: function() {
-      alert(this.$validator.validate());
       this.$validator.validate().then(result => {
         axios.put('https://devops-testing.azurewebsites.net/api/put_ingredient',
         {
