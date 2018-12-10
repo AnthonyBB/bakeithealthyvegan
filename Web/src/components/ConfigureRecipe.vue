@@ -10,15 +10,6 @@
              v-if="!isEditMode"
           ></v-text-field>
           <h2 v-if="isEditMode">{{ recipe.name }}</h2>
-        <v-divider></v-divider>
-        </v-flex>
-        <v-flex xs12>
-          <v-text-field 
-            v-if="this.$route.params.name == null"
-            v-model="recipe.name"
-            label="Name"
-            placeholder="The name of your recipe."
-          ></v-text-field>
         </v-flex>
         <v-flex xs12 sm5>
           <v-text-field

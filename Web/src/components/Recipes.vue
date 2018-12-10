@@ -18,7 +18,7 @@
               <v-btn fab small v-on:click="editRecipe(props.item.name)">
                 <v-icon large color="green darken-2">edit</v-icon>
               </v-btn>
-              <v-btn fab small v-on:click="deleteRecipe(props.item.name)">
+              <v-btn fab small v-on:click="deleteRecipeConfirm(props.item.name)">
                 <v-icon large color="red darken-2">delete_forever</v-icon>
               </v-btn>
             </td>
@@ -29,6 +29,50 @@
     <v-layout>
       <v-flex xs12>
         <v-btn v-on:click="addRecipe()">Add Recipe</v-btn>
+      </v-flex>
+    </v-layout>    
+    <v-layout>
+      <v-flex xs12>
+        <div class="text-xs-center">
+          <v-dialog
+            v-model="dialog"
+            width="500"
+          >
+
+            <v-card>
+              <v-card-title
+                class="headline grey lighten-2"
+                primary-title
+              >
+                Confirm Recipe Deletion
+              </v-card-title>
+
+              <v-card-text>
+                Are you sure you want to delete recipe {{ deleteRecipeName }}?
+              </v-card-text>
+
+              <v-divider></v-divider>
+
+              <v-card-actions>
+                <v-btn
+                  color="secondary"
+                  flat
+                  @click="dialog = false"
+                >
+                  Cancel
+                </v-btn>
+                <v-spacer></v-spacer>
+                <v-btn
+                  color="primary"
+                  flat
+                  @click="deleteRecipe()"
+                >
+                  Confirm Deletion
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </div>
       </v-flex>
     </v-layout>
   </v-container>
@@ -54,7 +98,9 @@ export default {
     ],
     recipes: [],
     isLoadingRecipes: false,
-    ingredients: []
+    ingredients: [],
+    dialog: false,
+    deleteRecipeName: null
   }),
   methods: {
     getAllRecipes: function() {
@@ -71,7 +117,14 @@ export default {
           that.isLoadingRecipes = false;
         });
     },
-    deleteRecipe: function(name) {
+    deleteRecipeConfirm: function(name) {
+      this.deleteRecipeName = name;
+      this.dialog = true;
+    },
+    deleteRecipe: function() {
+      const name = this.deleteRecipeName;
+      this.deleteRecipeName = null;
+      this.dialog = false;
       axios
         .delete("https://devops-testing.azurewebsites.net/api/delete_recipe", {
           data: { name: name }
