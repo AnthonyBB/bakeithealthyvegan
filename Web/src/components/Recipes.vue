@@ -10,10 +10,10 @@
             <td class="text-xs-left">{{ props.item.name }}</td>
             <td class="text-xs-left">{{ props.item.description }}</td>
             <td class="text-xs-center">{{ props.item.batchSize }}</td>
-            <td class="text-xs-center">{{ props.item.totalCost }}</td>
+            <td class="text-xs-center">{{ props.item.totalCost.toFixed(2) }}</td>
             <td
               class="text-xs-center"
-            >{{ props.item.totalCost / props.item.batchSize }}</td>
+            >{{ (props.item.totalCost / props.item.batchSize).toFixed(2) }}</td>
             <td class="text-cs-center">
               <v-btn fab small v-on:click="editRecipe(props.item.name)">
                 <v-icon large color="green darken-2">edit</v-icon>
@@ -108,9 +108,9 @@ export default {
                 matchingIngredients.push(match);
                 break;
               }
-            };
+            }
           }
-        };
+        }
       }
       var recipeCost = 0;
       matchingIngredients.forEach(function(match) {
@@ -144,7 +144,6 @@ export default {
             let ratio = standardConversion[`${ingredientUnitOfMeasure}`];
             let conversion = eval(ratio) * amount;
             return conversion;
-            break;
           }
         }
           return null;

@@ -1,15 +1,17 @@
 <template>
   <v-container>
-    <v-form>
+    <v-form v-model="valid">
       <v-layout text-xs-center wrap>
         <v-flex xs12>
           <v-text-field
             label="Name"
             placeholder="The name of the ingredient?"
-            v-model="ingredient.name"
-             v-if="!isEditMode"
+            v-model="name"
+            v-if="!isEditMode"
+            :rules="nameRules"
+            required
           ></v-text-field>
-          <h2 v-if="isEditMode">{{ ingredient.name }}</h2>
+          <h2 v-if="isEditMode">{{ name }}</h2>
         <v-divider></v-divider>
         </v-flex>
         <v-flex xs5>
@@ -17,7 +19,9 @@
               :items="unitsOfMeasure"
               label="Unit of Measure"
               placeholder="Cups, tablespoons, teaspons, etc"
-              v-model="ingredient.unitOfMeasure">
+              v-model="unitOfMeasure"
+              :rules="unitOfMeasureRules"
+              required>
             </v-select>
         </v-flex>
         <v-flex xs2>
@@ -26,7 +30,7 @@
           <v-text-field
             label="Units Per Pound"
             placeholder="How many units per pound?"
-            v-model="ingredient.unitsPerPound"
+            v-model="unitsPerPound"
           ></v-text-field>
         </v-flex>
         <v-flex xs12>
@@ -36,7 +40,7 @@
           <v-text-field
             label="Cost Per Unit"
             placeholder="Cost per unit?"
-            v-model="ingredient.unitCost"
+            v-model="unitCost"
             @click="isPerPound = false"
             :outline="!isPerPound"
           ></v-text-field>
@@ -48,13 +52,13 @@
           <v-text-field
             label="Cost Per Pound"
             placeholder="Cost per pound?"
-            v-model="ingredient.costPerPound"
+            v-model="costPerPound"
             @click="isPerPound = true"
             :outline="isPerPound"
           ></v-text-field>
         </v-flex>
         <v-flex xs12>
-          <v-btn @click="setIngredient()">Save Ingredient</v-btn>
+          <v-btn :disabled="!valid" @click="setIngredient()" type="submit">Save Ingredient</v-btn>
         </v-flex>
       </v-layout>
     </v-form>
@@ -83,17 +87,13 @@
 <script>
 import axios from 'axios'
 
-import UtilityService from '../services/utilityService'
-
 export default {
   data: () => ({
-    ingredient: {
-      name: null,
-      unitOfMeasure: null,
-      unitsPerPound: 0,
-      unitCost: 0.00,
-      costPerPound: 0.00
-     },
+    name: '',
+    unitOfMeasure: '',
+    unitsPerPound: 0,
+    unitCost: 0.00,
+    costPerPound: 0.00,
     unitsOfMeasure: [],
     snackbar: {
       open: false,
@@ -104,26 +104,51 @@ export default {
       text: ''
     },
     isEditMode: false,
-    isPerPound: false
+    isPerPound: false,
+    valid: false,
+    nameRules: [
+      v => !!v || 'Name is required',
+      v => v.length <= 100 || 'Name must be less than 100 characters'
+    ],
+    unitOfMeasureRules: [
+      v => !!v || 'Unit of Measure is required',
+    ],
+    // costPerRequired: [
+    //   v => {
+    //     const unitCostField = this.$validator.fields.find({ name: 'unitCost' });
+    //     const costPerPoundField = this.$validator.fields.find({ name: 'costPerPound' });
+    //     !!unitCostField.val() && !!costPerPoundField.val() || 'You must provide either Cost Per Unit or Cost Per Pound'
+    //   },
+    // ],
+    unitsOfMeasureRules: [
+      v => !!v || 'Unit of Measure is required',
+    ],
   }),
   methods: {
     setIngredient: function() {
-      axios.put('https://devops-testing.azurewebsites.net/api/put_ingredient',
-      {
-        name: this.ingredient.name,
-        unitsPerPound: this.ingredient.unitsPerPound,
-        unitOfMeasure: this.ingredient.unitOfMeasure,
-        unitCost: this.isPerPound ? this.ingredient.costPerPound / this.ingredient.unitsPerPound : this.ingredient.unitCost,
-        costPerPound: this.isPerPound ? this.ingredient.costPerPound : null
-      }).then(() => {
-        this.snackbar.text = "Ingredient Saved.";
-        this.snackbar.open = true;
-        this.isEditMode = true;
-      });;
+      alert(this.$validator.validate());
+      this.$validator.validate().then(result => {
+        axios.put('https://devops-testing.azurewebsites.net/api/put_ingredient',
+        {
+          name: this.name,
+          unitsPerPound: this.unitsPerPound,
+          unitOfMeasure: this.unitOfMeasure,
+          unitCost: this.isPerPound ? this.costPerPound / this.unitsPerPound : this.unitCost,
+          costPerPound: this.isPerPound ? this.costPerPound : null
+        }).then(() => {
+          this.snackbar.text = "Ingredient Saved.";
+          this.snackbar.open = true;
+          this.isEditMode = true;
+        });
+      });
     },
     getIngredient: function(name) {
       axios.get('https://devops-testing.azurewebsites.net/api/get_ingredient?name=' + name).then((response) => {
-        this.ingredient = response.data;
+        this.name = response.data.name,
+        this.unitsPerPound = response.data.unitsPerPound,
+        this.unitOfMeasure = response.data.unitOfMeasure,
+        this.unitCost = response.data.isPerPound ? response.data.costPerPound / response.data.unitsPerPound : response.data.unitCost,
+        this.costPerPound = response.data.isPerPound ? response.data.costPerPound : null
         this.isPerPound = response.data.costPerPound != null;
       })
     },

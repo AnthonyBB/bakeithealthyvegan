@@ -119,10 +119,6 @@ import axios from 'axios'
 import UtilityService from '../services/utilityService'
 
 export default {
-  $_veeValidate: {
-    validator: 'new'
-  },
-
   data: () => ({
     headers: [
       { text: "Name", value: "name", align: "left" },
@@ -150,7 +146,10 @@ export default {
       timeout: 5000,
       text: ''
     },
-    isEditMode: false
+    isEditMode: false,
+    nameRules: [
+      v => !!v || 'Name is required'
+    ],
   }),
   methods: {
     setRecipe: function() {
